@@ -4,13 +4,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link rel="stylesheet" type="text/css"
-     href="//cdn.jsdelivr.net/bootstrap/latest/css/bootstrap.css"
-/>
+     href="//cdn.jsdelivr.net/bootstrap/latest/css/bootstrap.css"/>
 
 
 <link rel="stylesheet" type="text/css"
-    href="/static/css/busy.css"
-/>
+    href="/static/css/busy.css"/>
 
 <!-- jquery from a content distribution network; probably cached -->
 <script type="text/javascript"
@@ -39,7 +37,7 @@
 
 <!--
   -- If there are any warnings or other messages from a prior action,
-  -- they appear above the rest of the content, just until the next 
+  -- they appear above the rest of the content, just until the next
   -- action.
   -->
 
@@ -68,7 +66,7 @@
     {    ranges: {
            'Today': [moment(), moment()],
            'Tomorrow':[moment().add(1, 'days'),
-                       moment().add(1, 'days')], 
+                       moment().add(1, 'days')],
            'This week':[moment(), moment().endOf('week')],
            'Next week':[moment().add(7, 'days').startOf('week'),
                         moment().add(7, 'days').endOf('week')],
@@ -79,28 +77,70 @@
     });
   </script>
 
+<br />
+<h2>Time range</h2>
+<input type="time" name="startTime" value="00:00:00">
+to
+<input type="time" name="endTime" value="23:59:00">
+
 <br /><input type="submit" value="Choose" />
 </form>
 
     <!--
-    Show the calendar list (if we have it).  This will need to be turned into
-    a form from which calendars can be picked. Up to three entries are
-    shown in each row (but the order is across then down; I would
-    prefer down then across). 
+    Show the calendar list (if we have it).
+    Displays a checkbox next to each calendar.
+    When user clicks "Find Busy Times" button,
+    to a page that lists the busy times.
     -->
+
+
 {% if g.calendars is defined  %}
+<form action="/selected" method="post">
   <div class="row">
   {% for cal in g.calendars if cal.selected %}
           <div class="col-md-4">
-	   {{ cal.summary }}
+            <input type="checkbox" name="checkbox" value="{{ cal.id }}">
+            {{ cal.summary }}
           </div>
          {% if loop.index is divisibleby 3 %}
           </div> <div class="row">
          {% endif %}
   {% endfor %}
   </div>
+<button type="submit">Get Busy Times</button>
+</form>
 {% endif %}
-    
 
-  </div>  <!-- container (for bootstrap) -->
-  </body> </html>
+<!--sorry for how ugly the middle of this jinja gets. formatting is hard-->
+{% if g.ids is defined %}
+  <h3>Events:</h3>
+  {% for id in g.ids %}
+    {% for event in g.events %}
+      {% if event.id == id %}
+      <div class="col-md-4">
+        {{ event.summary }}
+      </div>
+        {% if loop.index is divisibleby 1 %}
+          <div class="row">
+            {% for thing in event.events %}
+              <div class="col-md-4">
+              {{ thing.summary }} 
+              </div>
+              <div class="col-md-4">
+              Start: {{ thing.start | fmtdate }} {{ thing.start | fmttime }} 
+              </div>
+              <div class="col-md-4">
+              End: {{ thing.end | fmtdate }} {{ thing.end | fmttime }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+{% endif %}
+
+</div>  <!-- container (for bootstrap) -->
+</body>
+</html>
