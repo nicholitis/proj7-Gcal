@@ -346,7 +346,7 @@ def list_calendars(service):
         #list events in set date range
         startdate = flask.session["begin_date"]
         enddate = flask.session["end_date"]
-        eventslist = service.events().list(calendarId=cal["id"], timeMin=startdate, timeMax=enddate).execute()['items']
+        eventslist = service.events().list(calendarId=cal["id"], singleEvents=True, timeMin=startdate, timeMax=enddate).execute()['items']
         #only get events within range
         start = startdate[:11] + arrow.get(flask.session["begin_time"]).time().isoformat() + startdate[19:]
         end = enddate[:11] + arrow.get(flask.session["end_time"]).time().isoformat() + enddate[19:]
